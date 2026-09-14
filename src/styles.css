@@ -74,6 +74,15 @@
 
 :root {
   --radius: 0.625rem;
+  --wash: oklch(0.976 0.011 250);
+  --ink: oklch(0.27 0.045 260);
+  --muted-ink: oklch(0.52 0.032 258);
+  --line: oklch(0.84 0.026 254);
+  --navy: oklch(0.31 0.072 258);
+  --navy-foreground: oklch(0.985 0.005 250);
+  --brand: oklch(0.53 0.16 255);
+  --brand-soft: oklch(0.94 0.035 252);
+  --positive: oklch(0.56 0.11 165);
   --background: oklch(1 0 0);
   --foreground: oklch(0.129 0.042 264.695);
   --card: oklch(1 0 0);
