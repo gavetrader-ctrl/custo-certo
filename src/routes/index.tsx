@@ -66,7 +66,17 @@ function Index() {
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) setOrc({ ...orcamentoInicial, ...JSON.parse(raw) });
+      if (raw) {
+        const salvo = JSON.parse(raw) as Orcamento;
+        const normalizado = {
+          ...salvo,
+          itens: salvo.itens.map((i) => ({
+            ...i,
+            quantidadeProfissionais: i.quantidadeProfissionais ?? 1,
+          })),
+        };
+        setOrc({ ...orcamentoInicial, ...normalizado });
+      }
     } catch {
       /* ignora dados inválidos */
     }
@@ -94,7 +104,15 @@ function Index() {
       ...o,
       itens: [
         ...o.itens,
-        { id: novoId(), grupo: grupoAtivo, descricao: "", quantidade: 1, unidade: grupoAtivo === "maoDeObra" ? "h" : "un", valorUnitario: 0 },
+        {
+          id: novoId(),
+          grupo: grupoAtivo,
+          descricao: "",
+          quantidade: 1,
+          quantidadeProfissionais: grupoAtivo === "maoDeObra" ? 1 : 1,
+          unidade: grupoAtivo === "maoDeObra" ? "h" : "un",
+          valorUnitario: 0,
+        },
       ],
     }));
 
@@ -198,6 +216,9 @@ function Index() {
                 <thead>
                   <tr className="border-b border-line text-left text-[11px] uppercase tracking-wider text-muted-ink">
                     <th className="py-2 pr-3 font-medium">Descrição</th>
+                    {grupoAtivo === "maoDeObra" && (
+                      <th className="px-2 py-2 text-right font-medium">Profissionais</th>
+                    )}
                     <th className="px-2 py-2 text-right font-medium">
                       {grupoAtivo === "maoDeObra" ? "Horas/Dias" : "Qtd"}
                     </th>
@@ -220,6 +241,15 @@ function Index() {
                           className="w-full rounded-md border border-transparent bg-transparent px-1 py-1 font-sans text-[13px] text-ink outline-none focus:border-line focus:bg-card"
                         />
                       </td>
+                      {item.grupo === "maoDeObra" && (
+                        <td className="px-2 py-2 text-right">
+                          <NumeroInput
+                            value={item.quantidadeProfissionais}
+                            onChange={(v) => atualizarItem(item.id, { quantidadeProfissionais: v })}
+                            className="w-20"
+                          />
+                        </td>
+                      )}
                       <td className="px-2 py-2 text-right">
                         <NumeroInput
                           value={item.quantidade}
