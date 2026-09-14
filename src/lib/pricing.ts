@@ -5,6 +5,7 @@ export type Item = {
   grupo: Grupo;
   descricao: string;
   quantidade: number;
+  quantidadeProfissionais: number;
   unidade: string;
   valorUnitario: number;
 };
@@ -38,8 +39,8 @@ export const STORAGE_KEY = "obraforma:orcamento:v1";
 export const orcamentoInicial: Orcamento = {
   nomeServico: "Reforma de fachada — Bloco C",
   itens: [
-    { id: "1", grupo: "maoDeObra", descricao: "Pedreiro", quantidade: 18, unidade: "h", valorUnitario: 42 },
-    { id: "2", grupo: "maoDeObra", descricao: "Ajudante geral", quantidade: 18, unidade: "h", valorUnitario: 28 },
+    { id: "1", grupo: "maoDeObra", descricao: "Pedreiro", quantidade: 18, quantidadeProfissionais: 1, unidade: "h", valorUnitario: 42 },
+    { id: "2", grupo: "maoDeObra", descricao: "Ajudante geral", quantidade: 18, quantidadeProfissionais: 1, unidade: "h", valorUnitario: 28 },
     { id: "3", grupo: "ferramentas", descricao: "Kit de ferramentas manuais", quantidade: 1, unidade: "vb", valorUnitario: 180 },
     { id: "4", grupo: "equipamentos", descricao: "Betoneira 400 L (locação)", quantidade: 2, unidade: "dia", valorUnitario: 110 },
     { id: "5", grupo: "materiais", descricao: "Cimento CP-II", quantidade: 24, unidade: "sc", valorUnitario: 45 },
@@ -64,7 +65,8 @@ export const pct = (v: number) =>
 
 export function totalItem(item: Item, encargosSociais: number) {
   const base = item.quantidade * item.valorUnitario;
-  return item.grupo === "maoDeObra" ? base * (1 + encargosSociais / 100) : base;
+  if (item.grupo !== "maoDeObra") return base;
+  return base * item.quantidadeProfissionais * (1 + encargosSociais / 100);
 }
 
 export function calcular(orc: Orcamento) {
