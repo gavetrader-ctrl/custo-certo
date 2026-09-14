@@ -94,7 +94,7 @@ function Index() {
       ...o,
       itens: [
         ...o.itens,
-        { id: novoId(), grupo: grupoAtivo, descricao: "", quantidade: 1, unidade: "un", valorUnitario: 0 },
+        { id: novoId(), grupo: grupoAtivo, descricao: "", quantidade: 1, unidade: grupoAtivo === "maoDeObra" ? "h" : "un", valorUnitario: 0 },
       ],
     }));
 
@@ -198,8 +198,12 @@ function Index() {
                 <thead>
                   <tr className="border-b border-line text-left text-[11px] uppercase tracking-wider text-muted-ink">
                     <th className="py-2 pr-3 font-medium">Descrição</th>
-                    <th className="px-2 py-2 text-right font-medium">Qtd</th>
-                    <th className="px-2 py-2 text-right font-medium">Un</th>
+                    <th className="px-2 py-2 text-right font-medium">
+                      {grupoAtivo === "maoDeObra" ? "Horas/Dias" : "Qtd"}
+                    </th>
+                    <th className="px-2 py-2 text-right font-medium">
+                      {grupoAtivo === "maoDeObra" ? "Tipo" : "Un"}
+                    </th>
                     <th className="px-2 py-2 text-right font-medium">Valor unit.</th>
                     <th className="px-2 py-2 text-right font-medium">Total</th>
                     <th className="py-2 pl-2" />
@@ -224,11 +228,22 @@ function Index() {
                         />
                       </td>
                       <td className="px-2 py-2 text-right">
-                        <input
-                          value={item.unidade}
-                          onChange={(e) => atualizarItem(item.id, { unidade: e.target.value })}
-                          className="w-14 rounded-md border border-line bg-card px-2 py-1 text-right font-mono text-[12px] text-muted-ink outline-none focus:border-brand"
-                        />
+                        {item.grupo === "maoDeObra" ? (
+                          <select
+                            value={item.unidade}
+                            onChange={(e) => atualizarItem(item.id, { unidade: e.target.value })}
+                            className="w-20 rounded-md border border-line bg-card px-2 py-1 text-right font-mono text-[12px] text-muted-ink outline-none focus:border-brand"
+                          >
+                            <option value="h">hora</option>
+                            <option value="dia">dia</option>
+                          </select>
+                        ) : (
+                          <input
+                            value={item.unidade}
+                            onChange={(e) => atualizarItem(item.id, { unidade: e.target.value })}
+                            className="w-14 rounded-md border border-line bg-card px-2 py-1 text-right font-mono text-[12px] text-muted-ink outline-none focus:border-brand"
+                          />
+                        )}
                       </td>
                       <td className="px-2 py-2 text-right">
                         <NumeroInput
