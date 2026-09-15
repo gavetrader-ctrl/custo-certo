@@ -191,7 +191,7 @@ function Index() {
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-sm font-semibold tracking-tight">Composição do serviço</h2>
               <span className="font-mono text-[11px] text-muted-ink">
-                4 grupos · {orc.itens.length} itens
+                5 grupos · {orc.itens.length} itens
               </span>
             </div>
 
@@ -244,7 +244,7 @@ function Index() {
                       {item.grupo === "maoDeObra" && (
                         <td className="px-2 py-2 text-right">
                           <NumeroInput
-                            value={item.quantidadeProfissionais}
+                            value={item.quantidadeProfissionais ?? 1}
                             onChange={(v) => atualizarItem(item.id, { quantidadeProfissionais: v })}
                             className="w-20"
                           />
@@ -298,7 +298,7 @@ function Index() {
                   ))}
                   {itens.length === 0 && (
                     <tr>
-                      <td colSpan={6} className="py-8 text-center font-sans text-[13px] text-muted-ink">
+                      <td colSpan={grupoAtivo === "maoDeObra" ? 7 : 6} className="py-8 text-center font-sans text-[13px] text-muted-ink">
                         Nenhum item neste grupo. Use “Novo item” para cadastrar.
                       </td>
                     </tr>

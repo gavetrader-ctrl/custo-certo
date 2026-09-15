@@ -1,11 +1,16 @@
-export type Grupo = "maoDeObra" | "ferramentas" | "equipamentos" | "materiais";
+export type Grupo =
+  | "maoDeObra"
+  | "servicosTerceiros"
+  | "ferramentas"
+  | "equipamentos"
+  | "materiais";
 
 export type Item = {
   id: string;
   grupo: Grupo;
   descricao: string;
   quantidade: number;
-  quantidadeProfissionais: number;
+  quantidadeProfissionais?: number;
   unidade: string;
   valorUnitario: number;
 };
@@ -29,6 +34,7 @@ export type Orcamento = {
 
 export const GRUPOS: { id: Grupo; label: string }[] = [
   { id: "maoDeObra", label: "Mão de obra" },
+  { id: "servicosTerceiros", label: "Serviços de terceiros" },
   { id: "ferramentas", label: "Ferramentas" },
   { id: "equipamentos", label: "Equipamentos" },
   { id: "materiais", label: "Materiais" },
@@ -41,10 +47,11 @@ export const orcamentoInicial: Orcamento = {
   itens: [
     { id: "1", grupo: "maoDeObra", descricao: "Pedreiro", quantidade: 18, quantidadeProfissionais: 1, unidade: "h", valorUnitario: 42 },
     { id: "2", grupo: "maoDeObra", descricao: "Ajudante geral", quantidade: 18, quantidadeProfissionais: 1, unidade: "h", valorUnitario: 28 },
-    { id: "3", grupo: "ferramentas", descricao: "Kit de ferramentas manuais", quantidade: 1, unidade: "vb", valorUnitario: 180 },
-    { id: "4", grupo: "equipamentos", descricao: "Betoneira 400 L (locação)", quantidade: 2, unidade: "dia", valorUnitario: 110 },
-    { id: "5", grupo: "materiais", descricao: "Cimento CP-II", quantidade: 24, unidade: "sc", valorUnitario: 45 },
-    { id: "6", grupo: "materiais", descricao: "Areia média", quantidade: 6, unidade: "m³", valorUnitario: 130 },
+    { id: "3", grupo: "servicosTerceiros", descricao: "Pintura externa (terceiro)", quantidade: 1, quantidadeProfissionais: 1, unidade: "vb", valorUnitario: 2400 },
+    { id: "4", grupo: "ferramentas", descricao: "Kit de ferramentas manuais", quantidade: 1, unidade: "vb", valorUnitario: 180 },
+    { id: "5", grupo: "equipamentos", descricao: "Betoneira 400 L (locação)", quantidade: 2, unidade: "dia", valorUnitario: 110 },
+    { id: "6", grupo: "materiais", descricao: "Cimento CP-II", quantidade: 24, unidade: "sc", valorUnitario: 45 },
+    { id: "7", grupo: "materiais", descricao: "Areia média", quantidade: 6, unidade: "m³", valorUnitario: 130 },
   ],
   percentuais: {
     encargosSociais: 81.5,
@@ -66,7 +73,7 @@ export const pct = (v: number) =>
 export function totalItem(item: Item, encargosSociais: number) {
   const base = item.quantidade * item.valorUnitario;
   if (item.grupo !== "maoDeObra") return base;
-  return base * item.quantidadeProfissionais * (1 + encargosSociais / 100);
+  return base * (item.quantidadeProfissionais ?? 1) * (1 + encargosSociais / 100);
 }
 
 export function calcular(orc: Orcamento) {
