@@ -244,7 +244,7 @@ function Index() {
                       {item.grupo === "maoDeObra" && (
                         <td className="px-2 py-2 text-right">
                           <NumeroInput
-                            value={item.quantidadeProfissionais}
+                            value={item.quantidadeProfissionais ?? 1}
                             onChange={(v) => atualizarItem(item.id, { quantidadeProfissionais: v })}
                             className="w-20"
                           />
