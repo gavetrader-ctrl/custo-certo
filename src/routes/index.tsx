@@ -62,6 +62,7 @@ function Index() {
   const [grupoAtivo, setGrupoAtivo] = useState<Grupo>("maoDeObra");
   const [salvo, setSalvo] = useState(false);
   const [carregado, setCarregado] = useState(false);
+  const [novoCadastro, setNovoCadastro] = useState({ descricao: "", unidade: "h", valorUnitario: 0 });
 
   useEffect(() => {
     try {
