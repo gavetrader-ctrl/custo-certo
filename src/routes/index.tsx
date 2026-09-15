@@ -8,6 +8,7 @@ import {
   orcamentoInicial,
   pct,
   totalItem,
+  type CatalogoItem,
   type Grupo,
   type Item,
   type Orcamento,
@@ -62,6 +63,7 @@ function Index() {
   const [grupoAtivo, setGrupoAtivo] = useState<Grupo>("maoDeObra");
   const [salvo, setSalvo] = useState(false);
   const [carregado, setCarregado] = useState(false);
+  const [novoCadastro, setNovoCadastro] = useState({ descricao: "", unidade: "h", valorUnitario: 0 });
 
   useEffect(() => {
     try {
@@ -74,6 +76,7 @@ function Index() {
             ...i,
             quantidadeProfissionais: i.quantidadeProfissionais ?? 1,
           })),
+          catalogo: salvo.catalogo ?? orcamentoInicial.catalogo,
         };
         setOrc({ ...orcamentoInicial, ...normalizado });
       }
@@ -118,6 +121,71 @@ function Index() {
 
   const removerItem = (id: string) =>
     setOrc((o) => ({ ...o, itens: o.itens.filter((i) => i.id !== id) }));
+
+  const cadastro = orc.catalogo.filter((c) => c.grupo === grupoAtivo);
+
+  const adicionarDoCadastro = (c: CatalogoItem) =>
+    setOrc((o) => ({
+      ...o,
+      itens: [
+        ...o.itens,
+        {
+          id: novoId(),
+          grupo: c.grupo,
+          descricao: c.descricao,
+          quantidade: 1,
+          quantidadeProfissionais: 1,
+          unidade: c.unidade,
+          valorUnitario: c.valorUnitario,
+        },
+      ],
+    }));
+
+  const salvarNoCadastro = (item: Item) => {
+    if (!item.descricao.trim()) return;
+    setOrc((o) => {
+      const existe = o.catalogo.find(
+        (c) => c.grupo === item.grupo && c.descricao.trim().toLowerCase() === item.descricao.trim().toLowerCase(),
+      );
+      const catalogo = existe
+        ? o.catalogo.map((c) =>
+            c.id === existe.id ? { ...c, unidade: item.unidade, valorUnitario: item.valorUnitario } : c,
+          )
+        : [
+            ...o.catalogo,
+            {
+              id: novoId(),
+              grupo: item.grupo,
+              descricao: item.descricao.trim(),
+              unidade: item.unidade,
+              valorUnitario: item.valorUnitario,
+            },
+          ];
+      return { ...o, catalogo };
+    });
+  };
+
+  const removerDoCadastro = (id: string) =>
+    setOrc((o) => ({ ...o, catalogo: o.catalogo.filter((c) => c.id !== id) }));
+
+  const criarNoCadastro = () => {
+    if (!novoCadastro.descricao.trim()) return;
+    setOrc((o) => ({
+      ...o,
+      catalogo: [
+        ...o.catalogo,
+        {
+          id: novoId(),
+          grupo: grupoAtivo,
+          descricao: novoCadastro.descricao.trim(),
+          unidade: novoCadastro.unidade || "un",
+          valorUnitario: novoCadastro.valorUnitario,
+        },
+      ],
+    }));
+    setNovoCadastro({ descricao: "", unidade: grupoAtivo === "maoDeObra" ? "h" : "un", valorUnitario: 0 });
+  };
+
 
   const setBdi = (campo: keyof Orcamento["percentuais"]["bdi"], v: number) =>
     setOrc((o) => ({ ...o, percentuais: { ...o.percentuais, bdi: { ...o.percentuais.bdi, [campo]: v } } }));
@@ -211,6 +279,75 @@ function Index() {
               ))}
             </div>
 
+            <div className="mb-4 rounded-xl border border-line/70 bg-card/50 p-3.5">
+              <div className="mb-2.5 flex items-center justify-between gap-3">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-navy">
+                  Cadastro de {GRUPOS.find((g) => g.id === grupoAtivo)?.label.toLowerCase()}
+                </span>
+                <span className="font-mono text-[11px] text-muted-ink">{cadastro.length} cadastrados</span>
+              </div>
+
+              <div className="flex flex-wrap gap-1.5">
+                {cadastro.map((c) => (
+                  <span
+                    key={c.id}
+                    className="group inline-flex items-center gap-1.5 rounded-full border border-line bg-card px-2.5 py-1 text-[12px] text-ink"
+                  >
+                    <button
+                      onClick={() => adicionarDoCadastro(c)}
+                      className="inline-flex items-center gap-1.5 transition-colors hover:text-brand"
+                      title={`Adicionar ${c.descricao} à composição`}
+                    >
+                      <span className="font-medium">{c.descricao}</span>
+                      <span className="font-mono text-[11px] text-muted-ink">
+                        {brl(c.valorUnitario)}/{c.unidade}
+                      </span>
+                      <span className="text-[13px] leading-none text-brand">+</span>
+                    </button>
+                    <button
+                      onClick={() => removerDoCadastro(c.id)}
+                      aria-label={`Excluir ${c.descricao} do cadastro`}
+                      className="text-[12px] leading-none text-muted-ink transition-colors hover:text-ink"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+                {cadastro.length === 0 && (
+                  <span className="text-[12px] text-muted-ink">
+                    Nenhum cadastro neste grupo — cadastre abaixo para reutilizar depois.
+                  </span>
+                )}
+              </div>
+
+              <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-line/60 pt-3">
+                <input
+                  value={novoCadastro.descricao}
+                  placeholder={grupoAtivo === "maoDeObra" ? "Ex.: Eletricista" : "Ex.: Tijolo cerâmico"}
+                  onChange={(e) => setNovoCadastro((n) => ({ ...n, descricao: e.target.value }))}
+                  className="min-w-[180px] flex-1 rounded-md border border-line bg-card px-2 py-1.5 text-[13px] text-ink outline-none focus:border-brand"
+                />
+                <input
+                  value={novoCadastro.unidade}
+                  placeholder="un"
+                  onChange={(e) => setNovoCadastro((n) => ({ ...n, unidade: e.target.value }))}
+                  className="w-16 rounded-md border border-line bg-card px-2 py-1.5 text-center font-mono text-[12px] text-muted-ink outline-none focus:border-brand"
+                />
+                <NumeroInput
+                  value={novoCadastro.valorUnitario}
+                  onChange={(v) => setNovoCadastro((n) => ({ ...n, valorUnitario: v }))}
+                  className="w-28 py-1.5"
+                />
+                <button
+                  onClick={criarNoCadastro}
+                  className="rounded-md border border-line bg-card px-3 py-1.5 text-[12px] font-semibold text-ink transition-colors hover:bg-brand-soft"
+                >
+                  Cadastrar
+                </button>
+              </div>
+            </div>
+
+
             <div className="overflow-x-auto">
               <table className="w-full min-w-[620px] border-collapse text-[13px]">
                 <thead>
@@ -286,6 +423,13 @@ function Index() {
                         {brl(totalItem(item, orc.percentuais.encargosSociais))}
                       </td>
                       <td className="py-2 pl-2 text-right">
+                        <button
+                          onClick={() => salvarNoCadastro(item)}
+                          aria-label={`Salvar ${item.descricao || "item"} no cadastro`}
+                          className="mr-1 rounded-md border border-line bg-card px-2 py-1 font-sans text-[11px] text-muted-ink transition-colors hover:text-brand"
+                        >
+                          Salvar no cadastro
+                        </button>
                         <button
                           onClick={() => removerItem(item.id)}
                           aria-label={`Remover ${item.descricao || "item"}`}

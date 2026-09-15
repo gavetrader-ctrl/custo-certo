@@ -26,9 +26,18 @@ export type Percentuais = {
   impostos: { id: string; nome: string; aliquota: number }[];
 };
 
+export type CatalogoItem = {
+  id: string;
+  grupo: Grupo;
+  descricao: string;
+  unidade: string;
+  valorUnitario: number;
+};
+
 export type Orcamento = {
   nomeServico: string;
   itens: Item[];
+  catalogo: CatalogoItem[];
   percentuais: Percentuais;
 };
 
@@ -52,6 +61,17 @@ export const orcamentoInicial: Orcamento = {
     { id: "5", grupo: "equipamentos", descricao: "Betoneira 400 L (locação)", quantidade: 2, unidade: "dia", valorUnitario: 110 },
     { id: "6", grupo: "materiais", descricao: "Cimento CP-II", quantidade: 24, unidade: "sc", valorUnitario: 45 },
     { id: "7", grupo: "materiais", descricao: "Areia média", quantidade: 6, unidade: "m³", valorUnitario: 130 },
+  ],
+  catalogo: [
+    { id: "c1", grupo: "maoDeObra", descricao: "Pedreiro", unidade: "h", valorUnitario: 42 },
+    { id: "c2", grupo: "maoDeObra", descricao: "Ajudante geral", unidade: "h", valorUnitario: 28 },
+    { id: "c3", grupo: "maoDeObra", descricao: "Pintor", unidade: "h", valorUnitario: 38 },
+    { id: "c4", grupo: "servicosTerceiros", descricao: "Pintura externa (terceiro)", unidade: "vb", valorUnitario: 2400 },
+    { id: "c5", grupo: "ferramentas", descricao: "Kit de ferramentas manuais", unidade: "vb", valorUnitario: 180 },
+    { id: "c6", grupo: "equipamentos", descricao: "Betoneira 400 L (locação)", unidade: "dia", valorUnitario: 110 },
+    { id: "c7", grupo: "equipamentos", descricao: "Andaime tubular (locação)", unidade: "dia", valorUnitario: 75 },
+    { id: "c8", grupo: "materiais", descricao: "Cimento CP-II", unidade: "sc", valorUnitario: 45 },
+    { id: "c9", grupo: "materiais", descricao: "Areia média", unidade: "m³", valorUnitario: 130 },
   ],
   percentuais: {
     encargosSociais: 81.5,
