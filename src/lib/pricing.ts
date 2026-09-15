@@ -26,9 +26,18 @@ export type Percentuais = {
   impostos: { id: string; nome: string; aliquota: number }[];
 };
 
+export type CatalogoItem = {
+  id: string;
+  grupo: Grupo;
+  descricao: string;
+  unidade: string;
+  valorUnitario: number;
+};
+
 export type Orcamento = {
   nomeServico: string;
   itens: Item[];
+  catalogo: CatalogoItem[];
   percentuais: Percentuais;
 };
 
