@@ -74,6 +74,7 @@ function Index() {
             ...i,
             quantidadeProfissionais: i.quantidadeProfissionais ?? 1,
           })),
+          catalogo: salvo.catalogo ?? orcamentoInicial.catalogo,
         };
         setOrc({ ...orcamentoInicial, ...normalizado });
       }
