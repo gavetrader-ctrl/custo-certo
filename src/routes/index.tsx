@@ -8,6 +8,7 @@ import {
   orcamentoInicial,
   pct,
   totalItem,
+  type CatalogoItem,
   type Grupo,
   type Item,
   type Orcamento,
