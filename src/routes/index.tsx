@@ -424,6 +424,13 @@ function Index() {
                       </td>
                       <td className="py-2 pl-2 text-right">
                         <button
+                          onClick={() => salvarNoCadastro(item)}
+                          aria-label={`Salvar ${item.descricao || "item"} no cadastro`}
+                          className="mr-1 rounded-md border border-line bg-card px-2 py-1 font-sans text-[11px] text-muted-ink transition-colors hover:text-brand"
+                        >
+                          Salvar no cadastro
+                        </button>
+                        <button
                           onClick={() => removerItem(item.id)}
                           aria-label={`Remover ${item.descricao || "item"}`}
                           className="rounded-md border border-line bg-card px-2 py-1 font-sans text-[11px] text-muted-ink transition-colors hover:text-ink"
