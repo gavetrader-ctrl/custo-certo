@@ -120,6 +120,71 @@ function Index() {
   const removerItem = (id: string) =>
     setOrc((o) => ({ ...o, itens: o.itens.filter((i) => i.id !== id) }));
 
+  const cadastro = orc.catalogo.filter((c) => c.grupo === grupoAtivo);
+
+  const adicionarDoCadastro = (c: CatalogoItem) =>
+    setOrc((o) => ({
+      ...o,
+      itens: [
+        ...o.itens,
+        {
+          id: novoId(),
+          grupo: c.grupo,
+          descricao: c.descricao,
+          quantidade: 1,
+          quantidadeProfissionais: 1,
+          unidade: c.unidade,
+          valorUnitario: c.valorUnitario,
+        },
+      ],
+    }));
+
+  const salvarNoCadastro = (item: Item) => {
+    if (!item.descricao.trim()) return;
+    setOrc((o) => {
+      const existe = o.catalogo.find(
+        (c) => c.grupo === item.grupo && c.descricao.trim().toLowerCase() === item.descricao.trim().toLowerCase(),
+      );
+      const catalogo = existe
+        ? o.catalogo.map((c) =>
+            c.id === existe.id ? { ...c, unidade: item.unidade, valorUnitario: item.valorUnitario } : c,
+          )
+        : [
+            ...o.catalogo,
+            {
+              id: novoId(),
+              grupo: item.grupo,
+              descricao: item.descricao.trim(),
+              unidade: item.unidade,
+              valorUnitario: item.valorUnitario,
+            },
+          ];
+      return { ...o, catalogo };
+    });
+  };
+
+  const removerDoCadastro = (id: string) =>
+    setOrc((o) => ({ ...o, catalogo: o.catalogo.filter((c) => c.id !== id) }));
+
+  const criarNoCadastro = () => {
+    if (!novoCadastro.descricao.trim()) return;
+    setOrc((o) => ({
+      ...o,
+      catalogo: [
+        ...o.catalogo,
+        {
+          id: novoId(),
+          grupo: grupoAtivo,
+          descricao: novoCadastro.descricao.trim(),
+          unidade: novoCadastro.unidade || "un",
+          valorUnitario: novoCadastro.valorUnitario,
+        },
+      ],
+    }));
+    setNovoCadastro({ descricao: "", unidade: grupoAtivo === "maoDeObra" ? "h" : "un", valorUnitario: 0 });
+  };
+
+
   const setBdi = (campo: keyof Orcamento["percentuais"]["bdi"], v: number) =>
     setOrc((o) => ({ ...o, percentuais: { ...o.percentuais, bdi: { ...o.percentuais.bdi, [campo]: v } } }));
 
