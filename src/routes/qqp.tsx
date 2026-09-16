@@ -62,10 +62,14 @@ function FormacaoPrecoItem({
   formacao,
   onChange,
   onVoltar,
+  catalogo,
+  onCatalogoChange,
 }: {
   formacao: FormacaoPreco;
   onChange: (f: FormacaoPreco) => void;
   onVoltar: () => void;
+  catalogo: CatalogoItem[];
+  onCatalogoChange: (c: CatalogoItem[]) => void;
 }) {
   const [aba, setAba] = useState<
     | "maoDeObra"
@@ -77,6 +81,8 @@ function FormacaoPrecoItem({
     | "bdi"
     | "impostos"
   >("maoDeObra");
+
+  const [novoCad, setNovoCad] = useState({ descricao: "", unidade: "un", valorUnitario: 0 });
 
   const r = useMemo(() => calcularFormacaoItem(formacao), [formacao]);
 
