@@ -314,36 +314,3 @@ export function calcularQQP(qqp: QQPData) {
 
   return { itens: itensComTotal, valorTotalGeral };
 }
-
-export function calcular(orc: Orcamento) {
-  const { encargosSociais, bdi, impostos } = orc.percentuais;
-
-  const porGrupo = GRUPOS.map((g) => ({
-    ...g,
-    total: orc.itens
-      .filter((i) => i.grupo === g.id)
-      .reduce((s, i) => s + totalItem(i, encargosSociais), 0),
-  }));
-
-  const custoDireto = porGrupo.reduce((s, g) => s + g.total, 0);
-  const bdiPercent = bdi.administracaoCentral + bdi.lucro + bdi.riscos + bdi.seguros;
-  const valorBdi = custoDireto * (bdiPercent / 100);
-  const subtotal = custoDireto + valorBdi;
-
-  const impostoPercent = impostos.reduce((s, t) => s + t.aliquota, 0);
-  const divisor = 1 - impostoPercent / 100;
-  const precoFinal = divisor > 0 ? subtotal / divisor : subtotal;
-  const valorImpostos = precoFinal - subtotal;
-  const margem = custoDireto > 0 ? (precoFinal / custoDireto - 1) * 100 : 0;
-
-  return {
-    porGrupo,
-    custoDireto,
-    bdiPercent,
-    valorBdi,
-    impostoPercent,
-    valorImpostos,
-    precoFinal,
-    margem,
-  };
-}
