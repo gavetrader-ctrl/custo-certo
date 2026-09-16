@@ -226,6 +226,7 @@ export type FormacaoItem = {
   id: string;
   descricao: string;
   quantidade: number;
+  quantidadeProfissionais?: number;
   unidade: string;
   valorUnitario: number;
 };
@@ -260,6 +261,7 @@ export type QQPData = {
   sc: string;
   data: string;
   itens: ItemQQP[];
+  catalogo: CatalogoItem[];
 };
 
 export const QQP_STORAGE_KEY = "obraforma:qqp:v1";
