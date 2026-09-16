@@ -356,6 +356,27 @@ export const formacaoInicial = (descricao = ""): FormacaoPreco => ({
   ],
 });
 
+export const catalogoQQPInicial: CatalogoItem[] = [
+  { id: "c1", grupo: "maoDeObra", descricao: "Pedreiro", unidade: "h", valorUnitario: 42 },
+  { id: "c2", grupo: "maoDeObra", descricao: "Ajudante geral", unidade: "h", valorUnitario: 28 },
+  { id: "c3", grupo: "maoDeObra", descricao: "Pintor", unidade: "h", valorUnitario: 38 },
+  {
+    id: "c5",
+    grupo: "ferramentas",
+    descricao: "Kit de ferramentas manuais",
+    unidade: "vb",
+    valorUnitario: 180,
+  },
+  {
+    id: "c6",
+    grupo: "equipamentos",
+    descricao: "Betoneira 400 L (locação)",
+    unidade: "dia",
+    valorUnitario: 110,
+  },
+  { id: "c8", grupo: "materiais", descricao: "Cimento CP-II", unidade: "sc", valorUnitario: 45 },
+];
+
 export const qqpInicial: QQPData = {
   nomeServico:
     "Serviços de reforma em 01 blunger completo e revitalização de um cone de alimentação",
@@ -364,13 +385,15 @@ export const qqpInicial: QQPData = {
   sc: "SN",
   data: new Date().toLocaleDateString("pt-BR"),
   itens: [],
+  catalogo: catalogoQQPInicial,
 };
 
+export function totalFormacaoItem(item: FormacaoItem) {
+  return item.quantidade * item.valorUnitario * (item.quantidadeProfissionais ?? 1);
+}
+
 export function calcularFormacaoItem(formacao: FormacaoPreco) {
-  const custoMaoDeObraBase = formacao.maoDeObra.reduce(
-    (s, i) => s + i.quantidade * i.valorUnitario,
-    0,
-  );
+  const custoMaoDeObraBase = formacao.maoDeObra.reduce((s, i) => s + totalFormacaoItem(i), 0);
   const encargos = calcularEncargosSociais(formacao.encargosSociais ?? encargosSociaisIniciais);
   const custoMaoDeObra = custoMaoDeObraBase * (1 + encargos.total / 100);
   const valorEncargos = custoMaoDeObraBase * (encargos.total / 100);
