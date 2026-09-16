@@ -179,10 +179,20 @@
 }
 
 @media print {
+  .print-decoration {
+    display: none !important;
+  }
+
   .no-print {
     display: none !important;
   }
 
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+
+  html,
   body {
     background: white !important;
   }

@@ -297,11 +297,11 @@ Material de aplicação (Tubos/ Chapas / Perfil).`;
   return (
     <div className="min-h-screen bg-wash font-sans text-ink antialiased">
       <div
-        className="pointer-events-none fixed -left-32 top-[-14%] h-[520px] w-[520px] rounded-full bg-brand/15 blur-3xl"
+        className="print-decoration pointer-events-none fixed -left-32 top-[-14%] h-[520px] w-[520px] rounded-full bg-brand/15 blur-3xl"
         aria-hidden="true"
       />
       <div
-        className="pointer-events-none fixed right-[-10%] top-1/2 h-[480px] w-[480px] rounded-full bg-navy/10 blur-3xl"
+        className="print-decoration pointer-events-none fixed right-[-10%] top-1/2 h-[480px] w-[480px] rounded-full bg-navy/10 blur-3xl"
         aria-hidden="true"
       />
 
