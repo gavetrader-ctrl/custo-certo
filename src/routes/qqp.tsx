@@ -7,7 +7,10 @@ import {
   formacaoInicial,
   calcularFormacaoItem,
   calcularQQP,
+  totalFormacaoItem,
+  catalogoQQPInicial,
   QQP_STORAGE_KEY,
+  type CatalogoItem,
   type QQPData,
   type ItemQQP,
   type FormacaoPreco,
@@ -62,10 +65,14 @@ function FormacaoPrecoItem({
   formacao,
   onChange,
   onVoltar,
+  catalogo,
+  onCatalogoChange,
 }: {
   formacao: FormacaoPreco;
   onChange: (f: FormacaoPreco) => void;
   onVoltar: () => void;
+  catalogo: CatalogoItem[];
+  onCatalogoChange: (c: CatalogoItem[]) => void;
 }) {
   const [aba, setAba] = useState<
     | "maoDeObra"
@@ -77,6 +84,8 @@ function FormacaoPrecoItem({
     | "bdi"
     | "impostos"
   >("maoDeObra");
+
+  const [novoCad, setNovoCad] = useState({ descricao: "", unidade: "un", valorUnitario: 0 });
 
   const r = useMemo(() => calcularFormacaoItem(formacao), [formacao]);
 
@@ -105,7 +114,14 @@ function FormacaoPrecoItem({
       ...formacao,
       [grupo]: [
         ...lista,
-        { id: novoId(), descricao: "", quantidade: 1, unidade: "un", valorUnitario: 0 },
+        {
+          id: novoId(),
+          descricao: "",
+          quantidade: 1,
+          ...(grupo === "maoDeObra" ? { quantidadeProfissionais: 1 } : {}),
+          unidade: "un",
+          valorUnitario: 0,
+        },
       ],
     });
   };
@@ -149,19 +165,148 @@ function FormacaoPrecoItem({
       impostos: formacao.impostos.filter((t) => t.id !== id),
     });
 
-  const renderListaGrupo = (
-    grupo: "maoDeObra" | "ferramentas" | "equipamentos" | "materiais" | "servicosTerceiros",
-  ) => {
+  const labels: Record<string, string> = {
+    maoDeObra: "Profissional",
+    ferramentas: "Ferramenta",
+    equipamentos: "Equipamento",
+    materiais: "Material",
+    servicosTerceiros: "Serviço",
+  };
+
+  type GrupoLista =
+    | "maoDeObra"
+    | "ferramentas"
+    | "equipamentos"
+    | "materiais"
+    | "servicosTerceiros";
+
+  const inserirDoCadastro = (grupo: GrupoLista, c: CatalogoItem) => {
     const lista = formacao[grupo];
-    const labels: Record<string, string> = {
-      maoDeObra: "Profissional",
-      ferramentas: "Ferramenta",
-      equipamentos: "Equipamento",
-      materiais: "Material",
-      servicosTerceiros: "Serviço",
-    };
+    onChange({
+      ...formacao,
+      [grupo]: [
+        ...lista,
+        {
+          id: novoId(),
+          descricao: c.descricao,
+          quantidade: 1,
+          ...(grupo === "maoDeObra" ? { quantidadeProfissionais: 1 } : {}),
+          unidade: c.unidade,
+          valorUnitario: c.valorUnitario,
+        },
+      ],
+    });
+  };
+
+  const salvarNoCadastro = (grupo: GrupoLista, item: FormacaoItem) => {
+    if (!item.descricao.trim()) return;
+    const existente = catalogo.find(
+      (c) =>
+        c.grupo === grupo && c.descricao.trim().toLowerCase() === item.descricao.trim().toLowerCase(),
+    );
+    if (existente) {
+      onCatalogoChange(
+        catalogo.map((c) =>
+          c.id === existente.id
+            ? { ...c, unidade: item.unidade, valorUnitario: item.valorUnitario }
+            : c,
+        ),
+      );
+    } else {
+      onCatalogoChange([
+        ...catalogo,
+        {
+          id: novoId(),
+          grupo,
+          descricao: item.descricao.trim(),
+          unidade: item.unidade,
+          valorUnitario: item.valorUnitario,
+        },
+      ]);
+    }
+  };
+
+  const cadastrarNovo = (grupo: GrupoLista) => {
+    if (!novoCad.descricao.trim()) return;
+    onCatalogoChange([
+      ...catalogo,
+      {
+        id: novoId(),
+        grupo,
+        descricao: novoCad.descricao.trim(),
+        unidade: novoCad.unidade || "un",
+        valorUnitario: novoCad.valorUnitario,
+      },
+    ]);
+    setNovoCad({ descricao: "", unidade: "un", valorUnitario: 0 });
+  };
+
+  const renderListaGrupo = (grupo: GrupoLista) => {
+    const lista = formacao[grupo];
+    const doGrupo = catalogo.filter((c) => c.grupo === grupo);
     return (
-      <div className="space-y-2">
+      <div className="space-y-3">
+        {/* Cadastro reutilizável */}
+        <div className="rounded-lg border border-line/60 bg-card/40 p-3">
+          <p className="mb-2 text-[12px] font-semibold text-ink">
+            Cadastro de {labels[grupo].toLowerCase()}s
+          </p>
+          <div className="mb-2 flex flex-wrap gap-2">
+            <input
+              value={novoCad.descricao}
+              placeholder={`Nome do ${labels[grupo].toLowerCase()}`}
+              onChange={(e) => setNovoCad((n) => ({ ...n, descricao: e.target.value }))}
+              className="min-w-[160px] flex-1 rounded-md border border-line bg-card px-2 py-1 text-[12px] text-ink outline-none focus:border-brand"
+            />
+            <input
+              value={novoCad.unidade}
+              onChange={(e) => setNovoCad((n) => ({ ...n, unidade: e.target.value }))}
+              className="w-14 rounded-md border border-line bg-card px-1 py-1 text-center font-mono text-[11px] text-muted-ink outline-none focus:border-brand"
+            />
+            <NumeroInput
+              value={novoCad.valorUnitario}
+              onChange={(v) => setNovoCad((n) => ({ ...n, valorUnitario: v }))}
+              className="w-24"
+            />
+            <button
+              onClick={() => cadastrarNovo(grupo)}
+              className="rounded-md bg-navy px-3 py-1 text-[11px] font-semibold text-navy-foreground transition-colors hover:bg-navy/90"
+            >
+              Cadastrar
+            </button>
+          </div>
+          {doGrupo.length === 0 ? (
+            <p className="text-[11px] text-muted-ink">Nada cadastrado ainda.</p>
+          ) : (
+            <div className="flex flex-wrap gap-1.5">
+              {doGrupo.map((c) => (
+                <span
+                  key={c.id}
+                  className="inline-flex items-center gap-1 rounded-full border border-line bg-card px-2 py-1 text-[11px]"
+                >
+                  <button
+                    onClick={() => inserirDoCadastro(grupo, c)}
+                    className="font-medium text-ink transition-colors hover:text-brand"
+                    title="Inserir na formação"
+                  >
+                    {c.descricao}{" "}
+                    <span className="font-mono text-muted-ink">
+                      {c.unidade} · {brl(c.valorUnitario)}
+                    </span>
+                  </button>
+                  <button
+                    onClick={() => onCatalogoChange(catalogo.filter((x) => x.id !== c.id))}
+                    className="text-muted-ink transition-colors hover:text-ink"
+                    title="Remover do cadastro"
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+
         <div className="flex items-center justify-between">
           <span className="text-[12px] font-semibold text-ink">{labels[grupo]}</span>
           <button
@@ -171,6 +316,15 @@ function FormacaoPrecoItem({
             + adicionar
           </button>
         </div>
+        {grupo === "maoDeObra" && lista.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2 px-2 text-[10px] uppercase tracking-wider text-muted-ink">
+            <span className="min-w-[140px] flex-1">Profissional</span>
+            <span className="w-16 text-right">Qtd prof.</span>
+            <span className="w-16 text-right">Horas/dias</span>
+            <span className="w-12 text-center">Un</span>
+            <span className="w-24 text-right">Valor unit.</span>
+          </div>
+        )}
         {lista.length === 0 && (
           <p className="text-[12px] text-muted-ink">Nenhum item adicionado.</p>
         )}
@@ -185,6 +339,14 @@ function FormacaoPrecoItem({
               onChange={(e) => updateItem(grupo, item.id, { descricao: e.target.value })}
               className="min-w-[140px] flex-1 rounded-md border border-transparent bg-transparent px-2 py-1 text-[12px] text-ink outline-none focus:border-line focus:bg-card"
             />
+            {grupo === "maoDeObra" && (
+              <NumeroInput
+                value={item.quantidadeProfissionais ?? 1}
+                step="1"
+                onChange={(v) => updateItem(grupo, item.id, { quantidadeProfissionais: v })}
+                className="w-16"
+              />
+            )}
             <NumeroInput
               value={item.quantidade}
               onChange={(v) => updateItem(grupo, item.id, { quantidade: v })}
@@ -201,8 +363,14 @@ function FormacaoPrecoItem({
               className="w-24"
             />
             <span className="font-mono text-[11px] text-muted-ink">
-              {brl(item.quantidade * item.valorUnitario)}
+              {brl(totalFormacaoItem(item))}
             </span>
+            <button
+              onClick={() => salvarNoCadastro(grupo, item)}
+              className="rounded-md border border-line bg-card px-2 py-1 text-[10px] text-muted-ink transition-colors hover:text-brand"
+            >
+              Salvar no cadastro
+            </button>
             <button
               onClick={() => removeItem(grupo, item.id)}
               className="px-1 text-[12px] text-muted-ink transition-colors hover:text-ink"
@@ -211,6 +379,14 @@ function FormacaoPrecoItem({
             </button>
           </div>
         ))}
+        <div className="flex items-center justify-between border-t border-line/60 pt-2">
+          <span className="text-[12px] font-semibold text-ink">
+            Subtotal {labels[grupo].toLowerCase()}s
+          </span>
+          <span className="font-mono text-[12px] font-semibold">
+            {brl(lista.reduce((s, i) => s + totalFormacaoItem(i), 0))}
+          </span>
+        </div>
       </div>
     );
   };
@@ -396,6 +572,7 @@ function QQPPage() {
         const salvo = JSON.parse(raw) as QQPData;
         const normalizado = {
           ...salvo,
+          catalogo: salvo.catalogo ?? catalogoQQPInicial,
           itens: salvo.itens.map((i) => ({
             ...i,
             formacao: {
@@ -504,12 +681,6 @@ function QQPPage() {
             >
               Proposta →
             </Link>
-            <Link
-              to="/"
-              className="rounded-lg border border-line bg-card/70 px-3 py-2 text-[13px] font-medium text-ink transition-colors hover:bg-card"
-            >
-              ← Formação de preço
-            </Link>
           </div>
         </div>
       </header>
@@ -521,6 +692,8 @@ function QQPPage() {
               formacao={itemEditandoData.formacao}
               onChange={(f) => atualizarFormacao(itemEditando, f)}
               onVoltar={() => setItemEditando(null)}
+              catalogo={qqp.catalogo ?? []}
+              onCatalogoChange={(c) => setQqp((q) => ({ ...q, catalogo: c }))}
             />
           </div>
         ) : (

@@ -878,90 +878,134 @@ Material de aplicação (Tubos/ Chapas / Perfil).`;
                           Item {idx + 1} — {itemOriginal.descricao}
                         </h3>
 
-                        <table className="mb-3 w-full border-collapse text-[11px]">
-                          <thead>
-                            <tr className="border-b border-line bg-card/50">
-                              <th className="border-r border-line px-2 py-1 text-left font-semibold">
-                                Grupo
-                              </th>
-                              <th className="border-r border-line px-2 py-1 text-left font-semibold">
-                                Descrição
-                              </th>
-                              <th className="border-r border-line px-2 py-1 text-center font-semibold">
-                                Qtd
-                              </th>
-                              <th className="border-r border-line px-2 py-1 text-right font-semibold">
-                                Valor Unit.
-                              </th>
-                              <th className="px-2 py-1 text-right font-semibold">Subtotal</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {(
-                              [
-                                ["maoDeObra", "Mão de Obra", itemOriginal.formacao.maoDeObra],
-                                ["ferramentas", "Ferramentas", itemOriginal.formacao.ferramentas],
-                                [
-                                  "equipamentos",
-                                  "Equipamentos",
-                                  itemOriginal.formacao.equipamentos,
-                                ],
-                                ["materiais", "Materiais", itemOriginal.formacao.materiais],
-                                [
-                                  "servicosTerceiros",
-                                  "Serviços de Terceiros",
-                                  itemOriginal.formacao.servicosTerceiros,
-                                ],
-                              ] as const
-                            ).map(([key, label, arr]) =>
-                              arr.length > 0
-                                ? arr.map((t, ti) => (
-                                    <tr key={`${key}-${ti}`} className="border-b border-line/40">
-                                      <td className="border-r border-line px-2 py-1 font-medium">
-                                        {ti === 0 ? label : ""}
-                                      </td>
+                        {(
+                          [
+                            [
+                              "maoDeObra",
+                              "MÃO DE OBRA",
+                              itemOriginal.formacao.maoDeObra,
+                              itemCalculado.formacaoCalculada.custoMaoDeObraBase,
+                            ],
+                            [
+                              "ferramentas",
+                              "FERRAMENTAS",
+                              itemOriginal.formacao.ferramentas,
+                              itemCalculado.formacaoCalculada.custoFerramentas,
+                            ],
+                            [
+                              "equipamentos",
+                              "EQUIPAMENTOS",
+                              itemOriginal.formacao.equipamentos,
+                              itemCalculado.formacaoCalculada.custoEquipamentos,
+                            ],
+                            [
+                              "materiais",
+                              "MATERIAIS",
+                              itemOriginal.formacao.materiais,
+                              itemCalculado.formacaoCalculada.custoMateriais,
+                            ],
+                            [
+                              "servicosTerceiros",
+                              "SERVIÇOS DE TERCEIROS",
+                              itemOriginal.formacao.servicosTerceiros,
+                              itemCalculado.formacaoCalculada.custoServicosTerceiros,
+                            ],
+                          ] as const
+                        ).map(([key, label, arr, subtotal]) => (
+                          <div key={key} className="mb-3">
+                            <p className="mb-1 text-[11px] font-bold text-navy">{label}</p>
+                            <table className="w-full border-collapse text-[11px]">
+                              <thead>
+                                <tr className="border-b border-line bg-card/50">
+                                  <th className="border-r border-line px-2 py-1 text-left font-semibold">
+                                    Descrição
+                                  </th>
+                                  {key === "maoDeObra" && (
+                                    <th className="border-r border-line px-2 py-1 text-center font-semibold">
+                                      Prof.
+                                    </th>
+                                  )}
+                                  <th className="border-r border-line px-2 py-1 text-center font-semibold">
+                                    Qtd
+                                  </th>
+                                  <th className="border-r border-line px-2 py-1 text-center font-semibold">
+                                    Unid.
+                                  </th>
+                                  <th className="border-r border-line px-2 py-1 text-right font-semibold">
+                                    Valor Unit.
+                                  </th>
+                                  <th className="px-2 py-1 text-right font-semibold">Total</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {arr.length === 0 ? (
+                                  <tr className="border-b border-line/40">
+                                    <td
+                                      colSpan={key === "maoDeObra" ? 6 : 5}
+                                      className="px-2 py-1 text-center text-muted-ink"
+                                    >
+                                      Sem itens neste grupo.
+                                    </td>
+                                  </tr>
+                                ) : (
+                                  arr.map((t) => (
+                                    <tr key={t.id} className="border-b border-line/40">
                                       <td className="border-r border-line px-2 py-1">
                                         {t.descricao}
                                       </td>
+                                      {key === "maoDeObra" && (
+                                        <td className="border-r border-line px-2 py-1 text-center font-mono">
+                                          {t.quantidadeProfissionais ?? 1}
+                                        </td>
+                                      )}
                                       <td className="border-r border-line px-2 py-1 text-center font-mono">
                                         {t.quantidade}
+                                      </td>
+                                      <td className="border-r border-line px-2 py-1 text-center font-mono">
+                                        {t.unidade}
                                       </td>
                                       <td className="border-r border-line px-2 py-1 text-right font-mono">
                                         {brl(t.valorUnitario)}
                                       </td>
                                       <td className="px-2 py-1 text-right font-mono">
-                                        {brl(t.quantidade * t.valorUnitario)}
+                                        {brl(totalFormacaoItem(t))}
                                       </td>
                                     </tr>
                                   ))
-                                : null,
-                            )}
-                          </tbody>
-                        </table>
-
-                        {/* Subtotais por grupo */}
-                        <div className="grid grid-cols-2 gap-2 text-[11px] sm:grid-cols-3 md:grid-cols-5">
-                          {(
-                            [
-                              ["Mão de Obra", itemCalculado.formacaoCalculada.custoMaoDeObra],
-                              ["Ferramentas", itemCalculado.formacaoCalculada.custoFerramentas],
-                              ["Equipamentos", itemCalculado.formacaoCalculada.custoEquipamentos],
-                              ["Materiais", itemCalculado.formacaoCalculada.custoMateriais],
-                              [
-                                "Serv. Terceiros",
-                                itemCalculado.formacaoCalculada.custoServicosTerceiros,
-                              ],
-                            ] as const
-                          ).map(([label, valor]) => (
-                            <div
-                              key={label}
-                              className="rounded-md border border-line/60 bg-card/50 px-2 py-1.5"
-                            >
-                              <p className="text-[10px] text-muted-ink">{label}</p>
-                              <p className="font-mono font-semibold">{brl(valor)}</p>
-                            </div>
-                          ))}
-                        </div>
+                                )}
+                                {key === "maoDeObra" && (
+                                  <tr className="border-b border-line/40">
+                                    <td
+                                      colSpan={5}
+                                      className="border-r border-line px-2 py-1 text-right"
+                                    >
+                                      Encargos sociais (
+                                      {pct(itemCalculado.formacaoCalculada.encargosPercent)})
+                                    </td>
+                                    <td className="px-2 py-1 text-right font-mono">
+                                      {brl(itemCalculado.formacaoCalculada.valorEncargos)}
+                                    </td>
+                                  </tr>
+                                )}
+                                <tr className="border-t border-navy/40 bg-card/50 font-semibold">
+                                  <td
+                                    colSpan={key === "maoDeObra" ? 5 : 4}
+                                    className="border-r border-line px-2 py-1 text-right"
+                                  >
+                                    SUBTOTAL {label}
+                                  </td>
+                                  <td className="px-2 py-1 text-right font-mono">
+                                    {brl(
+                                      key === "maoDeObra"
+                                        ? itemCalculado.formacaoCalculada.custoMaoDeObra
+                                        : subtotal,
+                                    )}
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        ))}
 
                         {/* Totais do item */}
                         <div className="mt-3 grid grid-cols-2 gap-2 border-t border-line/60 pt-3 text-[12px] sm:grid-cols-4">
