@@ -7,7 +7,10 @@ import {
   formacaoInicial,
   calcularFormacaoItem,
   calcularQQP,
+  totalFormacaoItem,
+  catalogoQQPInicial,
   QQP_STORAGE_KEY,
+  type CatalogoItem,
   type QQPData,
   type ItemQQP,
   type FormacaoPreco,
@@ -111,7 +114,14 @@ function FormacaoPrecoItem({
       ...formacao,
       [grupo]: [
         ...lista,
-        { id: novoId(), descricao: "", quantidade: 1, unidade: "un", valorUnitario: 0 },
+        {
+          id: novoId(),
+          descricao: "",
+          quantidade: 1,
+          ...(grupo === "maoDeObra" ? { quantidadeProfissionais: 1 } : {}),
+          unidade: "un",
+          valorUnitario: 0,
+        },
       ],
     });
   };
@@ -562,6 +572,7 @@ function QQPPage() {
         const salvo = JSON.parse(raw) as QQPData;
         const normalizado = {
           ...salvo,
+          catalogo: salvo.catalogo ?? catalogoQQPInicial,
           itens: salvo.itens.map((i) => ({
             ...i,
             formacao: {
@@ -670,12 +681,6 @@ function QQPPage() {
             >
               Proposta →
             </Link>
-            <Link
-              to="/"
-              className="rounded-lg border border-line bg-card/70 px-3 py-2 text-[13px] font-medium text-ink transition-colors hover:bg-card"
-            >
-              ← Formação de preço
-            </Link>
           </div>
         </div>
       </header>
@@ -687,6 +692,8 @@ function QQPPage() {
               formacao={itemEditandoData.formacao}
               onChange={(f) => atualizarFormacao(itemEditando, f)}
               onVoltar={() => setItemEditando(null)}
+              catalogo={qqp.catalogo ?? []}
+              onCatalogoChange={(c) => setQqp((q) => ({ ...q, catalogo: c }))}
             />
           </div>
         ) : (
