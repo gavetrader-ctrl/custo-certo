@@ -243,18 +243,19 @@ function FormacaoPrecoItem({
 
   const renderListaGrupo = (grupo: GrupoLista) => {
     const lista = formacao[grupo];
+    const rotulo = labels[grupo] ?? "Item";
     const doGrupo = catalogo.filter((c) => c.grupo === grupo);
     return (
       <div className="space-y-3">
         {/* Cadastro reutilizável */}
         <div className="rounded-lg border border-line/60 bg-card/40 p-3">
           <p className="mb-2 text-[12px] font-semibold text-ink">
-            Cadastro de {labels[grupo].toLowerCase()}s
+            Cadastro de {rotulo.toLowerCase()}s
           </p>
           <div className="mb-2 flex flex-wrap gap-2">
             <input
               value={novoCad.descricao}
-              placeholder={`Nome do ${labels[grupo].toLowerCase()}`}
+              placeholder={`Nome do ${rotulo.toLowerCase()}`}
               onChange={(e) => setNovoCad((n) => ({ ...n, descricao: e.target.value }))}
               className="min-w-[160px] flex-1 rounded-md border border-line bg-card px-2 py-1 text-[12px] text-ink outline-none focus:border-brand"
             />
@@ -308,7 +309,7 @@ function FormacaoPrecoItem({
         </div>
 
         <div className="flex items-center justify-between">
-          <span className="text-[12px] font-semibold text-ink">{labels[grupo]}</span>
+          <span className="text-[12px] font-semibold text-ink">{rotulo}</span>
           <button
             onClick={() => addItem(grupo)}
             className="rounded-md border border-line bg-card px-2 py-1 text-[11px] font-medium text-muted-ink transition-colors hover:text-brand"
@@ -335,7 +336,7 @@ function FormacaoPrecoItem({
           >
             <input
               value={item.descricao}
-              placeholder={labels[grupo]}
+              placeholder={rotulo}
               onChange={(e) => updateItem(grupo, item.id, { descricao: e.target.value })}
               className="min-w-[140px] flex-1 rounded-md border border-transparent bg-transparent px-2 py-1 text-[12px] text-ink outline-none focus:border-line focus:bg-card"
             />
@@ -381,7 +382,7 @@ function FormacaoPrecoItem({
         ))}
         <div className="flex items-center justify-between border-t border-line/60 pt-2">
           <span className="text-[12px] font-semibold text-ink">
-            Subtotal {labels[grupo].toLowerCase()}s
+            Subtotal {rotulo.toLowerCase()}s
           </span>
           <span className="font-mono text-[12px] font-semibold">
             {brl(lista.reduce((s, i) => s + totalFormacaoItem(i), 0))}
