@@ -744,7 +744,7 @@ Material de aplicação (Tubos/ Chapas / Perfil).`;
             </div>
 
             {/* ANEXO I — Quadro de Quantidades e Preços */}
-            <div className="mt-10 break-before-page">
+            <div className="print-anexo mt-12 break-before-page">
               <div className="mb-4 border-b-2 border-navy pb-2">
                 <div className="flex items-center justify-between">
                   <h2 className="text-[15px] font-bold text-navy">
@@ -853,7 +853,7 @@ Material de aplicação (Tubos/ Chapas / Perfil).`;
             </div>
 
             {/* ANEXO II — Detalhamento da Formação de Preço por Item */}
-            <div className="mt-10 break-before-page">
+            <div className="print-anexo mt-12 break-before-page">
               <div className="mb-4 border-b-2 border-navy pb-2">
                 <h2 className="text-[15px] font-bold text-navy">
                   ANEXO II — FORMAÇÃO DE PREÇO POR ITEM
@@ -1048,7 +1048,7 @@ Material de aplicação (Tubos/ Chapas / Perfil).`;
             </div>
 
             {/* ANEXO III — Encargos Sociais */}
-            <div className="mt-10 break-before-page">
+            <div className="print-anexo mt-12 break-before-page">
               <div className="mb-4 border-b-2 border-navy pb-2">
                 <h2 className="text-[15px] font-bold text-navy">ANEXO III — ENCARGOS SOCIAIS</h2>
               </div>
