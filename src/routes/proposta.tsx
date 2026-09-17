@@ -5,6 +5,7 @@ import {
   pct,
   qqpInicial,
   calcularQQP,
+  totalFormacaoItem,
   QQP_STORAGE_KEY,
   CLIENTES_STORAGE_KEY,
   PROPOSALS_STORAGE_KEY,
