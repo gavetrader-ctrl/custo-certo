@@ -200,4 +200,22 @@
   .proposta-print {
     padding: 0 !important;
   }
+
+  /* Cada anexo começa em uma nova página na impressão */
+  .print-anexo {
+    break-before: page !important;
+    page-break-before: always !important;
+    margin-top: 0 !important;
+  }
+
+  /* Evita que tabelas e blocos de preço sejam cortados ao meio */
+  .print-anexo table {
+    break-inside: auto;
+  }
+
+  .print-anexo tr,
+  .print-anexo td,
+  .print-anexo th {
+    break-inside: avoid;
+  }
 }
