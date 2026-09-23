@@ -629,46 +629,79 @@ function PropostaPage() {
             <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-navy">
               Fornecimento
             </p>
+            <p className="mb-2 text-[11px] text-muted-ink">
+              Liste tudo o que será fornecido e defina de quem é a responsabilidade.
+            </p>
             <div className="mb-3 flex flex-col gap-2">
-              <label className="text-[11px] font-medium text-muted-ink">
-                Quem fornece o material de aplicação?
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {(
-                  [
-                    ["contratada", "Contratada fornece"],
-                    ["contratante", "Contratante fornece"],
-                    ["parcial", "Parcial (ambos)"],
-                  ] as const
-                ).map(([modo, rotulo]) => (
+              {itensFornecimento.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex flex-wrap items-center gap-2 rounded-lg border border-line/70 bg-card px-2 py-1.5"
+                >
+                  <input
+                    value={item.descricao}
+                    onChange={(e) => atualizarFornecimento(item.id, { descricao: e.target.value })}
+                    placeholder="Descrição do fornecimento"
+                    className="min-w-[180px] flex-1 rounded-md border border-line/70 bg-wash px-2 py-1 text-[12px] text-ink outline-none focus:border-navy"
+                  />
+                  <div className="flex gap-1">
+                    {RESPONSAVEIS.map((r) => (
+                      <button
+                        key={r.valor}
+                        type="button"
+                        onClick={() => atualizarFornecimento(item.id, { responsavel: r.valor })}
+                        className={`rounded-md border px-2 py-1 text-[11px] font-medium transition-colors ${
+                          item.responsavel === r.valor
+                            ? "border-navy bg-navy text-navy-foreground"
+                            : "border-line bg-card text-ink hover:bg-brand/10"
+                        }`}
+                      >
+                        {r.rotulo}
+                      </button>
+                    ))}
+                  </div>
                   <button
-                    key={modo}
                     type="button"
-                    onClick={() => aplicarFornecimento(modo)}
-                    className={`rounded-lg border px-3 py-1.5 text-[12px] font-medium transition-colors ${
-                      proposta.fornecimentoMaterial === modo
-                        ? "border-navy bg-navy text-navy-foreground"
-                        : "border-line bg-card text-ink hover:bg-brand/10"
-                    }`}
+                    onClick={() => removerFornecimento(item.id)}
+                    className="rounded-md border border-line px-2 py-1 text-[11px] text-muted-ink hover:bg-brand/10"
                   >
-                    {rotulo}
+                    Remover
                   </button>
-                ))}
-              </div>
+                </div>
+              ))}
+              {itensFornecimento.length === 0 && (
+                <p className="text-[12px] text-muted-ink">Nenhum fornecimento cadastrado.</p>
+              )}
             </div>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <InputField
-                label="Fornecimento da Contratada (editável)"
-                value={proposta.fornecimentoContratada}
-                onChange={(v) => set({ fornecimentoContratada: v })}
-                multiline
-              />
-              <InputField
-                label="Fornecimento da Contratante (editável)"
-                value={proposta.fornecimentoContratante}
-                onChange={(v) => set({ fornecimentoContratante: v })}
-                multiline
-              />
+            <div className="mb-2 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => adicionarFornecimento()}
+                className="rounded-lg border border-navy bg-navy px-3 py-1.5 text-[12px] font-medium text-navy-foreground"
+              >
+                + Adicionar fornecimento
+              </button>
+              <button
+                type="button"
+                onClick={() => set({ itensFornecimento: FORNECIMENTOS_PADRAO })}
+                className="rounded-lg border border-line bg-card px-3 py-1.5 text-[12px] font-medium text-ink hover:bg-brand/10"
+              >
+                Restaurar lista padrão
+              </button>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {SUGESTOES_FORNECIMENTO.filter(
+                (s) => !itensFornecimento.some((i) => i.descricao === s),
+              ).map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => adicionarFornecimento(s)}
+                  className="rounded-full border border-line bg-card px-2.5 py-1 text-[11px] text-muted-ink hover:bg-brand/10 hover:text-ink"
+                >
+                  + {s}
+                </button>
+              ))}
             </div>
           </div>
 
