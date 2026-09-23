@@ -1,5 +1,4 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-// fornecimento editável
 import { useEffect, useMemo, useState } from "react";
 import {
   brl,
@@ -311,16 +310,27 @@ function PropostaPage() {
     window.print();
   };
 
-  const textoFornecimentoContratada = `Fornecimento da alimentação;
-Mão-de-obra especializada direta e indireta;
-Material de aplicação;
-Material de aplicação e consumo;
-Transporte do pessoal;
-Uniformes e equipamentos de proteção individual (EPI's).`;
-
-  const textoFornecimentoContratante = `Fiscalização;
-Informações técnicas necessárias à execução do serviço;
-Material de aplicação (Tubos/ Chapas / Perfil).`;
+  const aplicarFornecimento = (modo: FornecimentoMaterial) => {
+    if (modo === "contratada") {
+      set({
+        fornecimentoMaterial: modo,
+        fornecimentoContratada: TEXTO_FORNECIMENTO_CONTRATADA_COMPLETO,
+        fornecimentoContratante: TEXTO_FORNECIMENTO_CONTRATANTE_BASE,
+      });
+    } else if (modo === "contratante") {
+      set({
+        fornecimentoMaterial: modo,
+        fornecimentoContratada: TEXTO_FORNECIMENTO_CONTRATADA_SEM_MATERIAL,
+        fornecimentoContratante: TEXTO_FORNECIMENTO_CONTRATANTE_COM_MATERIAL,
+      });
+    } else {
+      set({
+        fornecimentoMaterial: modo,
+        fornecimentoContratada: TEXTO_FORNECIMENTO_CONTRATADA_COMPLETO,
+        fornecimentoContratante: TEXTO_FORNECIMENTO_CONTRATANTE_COM_MATERIAL,
+      });
+    }
+  };
 
   const textoMedicoes = `A medição deverá ser feita em conjunto com os FISCAIS DA CONTRATANTE e da CONTRATADA através de BMM (Boletim de Medição Mensal) no qual constará o quantitativo e os valores dos serviços prestados.`;
 
