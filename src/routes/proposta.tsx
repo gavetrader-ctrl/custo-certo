@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+// fornecimento editável
 import { useEffect, useMemo, useState } from "react";
 import {
   brl,
