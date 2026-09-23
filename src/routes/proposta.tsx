@@ -105,9 +105,7 @@ type PropostaData = {
 };
 
 const propostaInicial: PropostaData = {
-  fornecimentoMaterial: "contratada",
-  fornecimentoContratada: TEXTO_FORNECIMENTO_CONTRATADA_COMPLETO,
-  fornecimentoContratante: TEXTO_FORNECIMENTO_CONTRATANTE_BASE,
+  itensFornecimento: FORNECIMENTOS_PADRAO,
   empresaRazaoSocial: "",
   empresaCnpj: "",
   empresaEndereco: "",
