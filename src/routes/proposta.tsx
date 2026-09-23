@@ -28,7 +28,32 @@ export const Route = createFileRoute("/proposta")({
   component: PropostaPage,
 });
 
+type FornecimentoMaterial = "contratada" | "contratante" | "parcial";
+
+const TEXTO_FORNECIMENTO_CONTRATADA_COMPLETO = `Fornecimento da alimentação;
+Mão-de-obra especializada direta e indireta;
+Material de aplicação;
+Material de aplicação e consumo;
+Transporte do pessoal;
+Uniformes e equipamentos de proteção individual (EPI's).`;
+
+const TEXTO_FORNECIMENTO_CONTRATADA_SEM_MATERIAL = `Fornecimento da alimentação;
+Mão-de-obra especializada direta e indireta;
+Material de consumo;
+Transporte do pessoal;
+Uniformes e equipamentos de proteção individual (EPI's).`;
+
+const TEXTO_FORNECIMENTO_CONTRATANTE_BASE = `Fiscalização;
+Informações técnicas necessárias à execução do serviço;`;
+
+const TEXTO_FORNECIMENTO_CONTRATANTE_COM_MATERIAL = `Fiscalização;
+Informações técnicas necessárias à execução do serviço;
+Material de aplicação (Tubos/ Chapas / Perfil).`;
+
 type PropostaData = {
+  fornecimentoMaterial: FornecimentoMaterial;
+  fornecimentoContratada: string;
+  fornecimentoContratante: string;
   empresaRazaoSocial: string;
   empresaCnpj: string;
   empresaEndereco: string;
@@ -55,6 +80,9 @@ type PropostaData = {
 };
 
 const propostaInicial: PropostaData = {
+  fornecimentoMaterial: "contratada",
+  fornecimentoContratada: TEXTO_FORNECIMENTO_CONTRATADA_COMPLETO,
+  fornecimentoContratante: TEXTO_FORNECIMENTO_CONTRATANTE_BASE,
   empresaRazaoSocial: "",
   empresaCnpj: "",
   empresaEndereco: "",
