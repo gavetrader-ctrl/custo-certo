@@ -28,32 +28,57 @@ export const Route = createFileRoute("/proposta")({
   component: PropostaPage,
 });
 
-type FornecimentoMaterial = "contratada" | "contratante" | "parcial";
+type ResponsavelFornecimento = "contratada" | "contratante" | "ambos";
 
-const TEXTO_FORNECIMENTO_CONTRATADA_COMPLETO = `Fornecimento da alimentação;
-Mão-de-obra especializada direta e indireta;
-Material de aplicação;
-Material de aplicação e consumo;
-Transporte do pessoal;
-Uniformes e equipamentos de proteção individual (EPI's).`;
+type ItemFornecimento = {
+  id: string;
+  descricao: string;
+  responsavel: ResponsavelFornecimento;
+};
 
-const TEXTO_FORNECIMENTO_CONTRATADA_SEM_MATERIAL = `Fornecimento da alimentação;
-Mão-de-obra especializada direta e indireta;
-Material de consumo;
-Transporte do pessoal;
-Uniformes e equipamentos de proteção individual (EPI's).`;
+const novoIdFornecimento = () =>
+  Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 
-const TEXTO_FORNECIMENTO_CONTRATANTE_BASE = `Fiscalização;
-Informações técnicas necessárias à execução do serviço;`;
+const FORNECIMENTOS_PADRAO: ItemFornecimento[] = [
+  { id: "f1", descricao: "Alimentação", responsavel: "contratada" },
+  { id: "f2", descricao: "Mão-de-obra especializada direta e indireta", responsavel: "contratada" },
+  { id: "f3", descricao: "Material de aplicação", responsavel: "contratada" },
+  { id: "f4", descricao: "Material de consumo", responsavel: "contratada" },
+  { id: "f5", descricao: "Transporte do pessoal", responsavel: "contratada" },
+  {
+    id: "f6",
+    descricao: "Uniformes e equipamentos de proteção individual (EPI's)",
+    responsavel: "contratada",
+  },
+  { id: "f7", descricao: "Fiscalização", responsavel: "contratante" },
+  {
+    id: "f8",
+    descricao: "Informações técnicas necessárias à execução do serviço",
+    responsavel: "contratante",
+  },
+];
 
-const TEXTO_FORNECIMENTO_CONTRATANTE_COM_MATERIAL = `Fiscalização;
-Informações técnicas necessárias à execução do serviço;
-Material de aplicação (Tubos/ Chapas / Perfil).`;
+const SUGESTOES_FORNECIMENTO = [
+  "Material de aplicação (Tubos / Chapas / Perfil)",
+  "Andaimes",
+  "Energia elétrica",
+  "Água industrial",
+  "Ferramentas e equipamentos",
+  "Guindaste / Munck",
+  "Transporte de materiais",
+  "Hospedagem",
+  "Área de vivência / Almoxarifado",
+  "Descarte de resíduos",
+];
+
+const RESPONSAVEIS: { valor: ResponsavelFornecimento; rotulo: string }[] = [
+  { valor: "contratada", rotulo: "Contratada" },
+  { valor: "contratante", rotulo: "Contratante" },
+  { valor: "ambos", rotulo: "Ambos" },
+];
 
 type PropostaData = {
-  fornecimentoMaterial: FornecimentoMaterial;
-  fornecimentoContratada: string;
-  fornecimentoContratante: string;
+  itensFornecimento: ItemFornecimento[];
   empresaRazaoSocial: string;
   empresaCnpj: string;
   empresaEndereco: string;
