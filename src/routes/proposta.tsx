@@ -28,7 +28,32 @@ export const Route = createFileRoute("/proposta")({
   component: PropostaPage,
 });
 
+type FornecimentoMaterial = "contratada" | "contratante" | "parcial";
+
+const TEXTO_FORNECIMENTO_CONTRATADA_COMPLETO = `Fornecimento da alimentação;
+Mão-de-obra especializada direta e indireta;
+Material de aplicação;
+Material de aplicação e consumo;
+Transporte do pessoal;
+Uniformes e equipamentos de proteção individual (EPI's).`;
+
+const TEXTO_FORNECIMENTO_CONTRATADA_SEM_MATERIAL = `Fornecimento da alimentação;
+Mão-de-obra especializada direta e indireta;
+Material de consumo;
+Transporte do pessoal;
+Uniformes e equipamentos de proteção individual (EPI's).`;
+
+const TEXTO_FORNECIMENTO_CONTRATANTE_BASE = `Fiscalização;
+Informações técnicas necessárias à execução do serviço;`;
+
+const TEXTO_FORNECIMENTO_CONTRATANTE_COM_MATERIAL = `Fiscalização;
+Informações técnicas necessárias à execução do serviço;
+Material de aplicação (Tubos/ Chapas / Perfil).`;
+
 type PropostaData = {
+  fornecimentoMaterial: FornecimentoMaterial;
+  fornecimentoContratada: string;
+  fornecimentoContratante: string;
   empresaRazaoSocial: string;
   empresaCnpj: string;
   empresaEndereco: string;
@@ -55,6 +80,9 @@ type PropostaData = {
 };
 
 const propostaInicial: PropostaData = {
+  fornecimentoMaterial: "contratada",
+  fornecimentoContratada: TEXTO_FORNECIMENTO_CONTRATADA_COMPLETO,
+  fornecimentoContratante: TEXTO_FORNECIMENTO_CONTRATANTE_BASE,
   empresaRazaoSocial: "",
   empresaCnpj: "",
   empresaEndereco: "",
@@ -282,16 +310,27 @@ function PropostaPage() {
     window.print();
   };
 
-  const textoFornecimentoContratada = `Fornecimento da alimentação;
-Mão-de-obra especializada direta e indireta;
-Material de aplicação;
-Material de aplicação e consumo;
-Transporte do pessoal;
-Uniformes e equipamentos de proteção individual (EPI's).`;
-
-  const textoFornecimentoContratante = `Fiscalização;
-Informações técnicas necessárias à execução do serviço;
-Material de aplicação (Tubos/ Chapas / Perfil).`;
+  const aplicarFornecimento = (modo: FornecimentoMaterial) => {
+    if (modo === "contratada") {
+      set({
+        fornecimentoMaterial: modo,
+        fornecimentoContratada: TEXTO_FORNECIMENTO_CONTRATADA_COMPLETO,
+        fornecimentoContratante: TEXTO_FORNECIMENTO_CONTRATANTE_BASE,
+      });
+    } else if (modo === "contratante") {
+      set({
+        fornecimentoMaterial: modo,
+        fornecimentoContratada: TEXTO_FORNECIMENTO_CONTRATADA_SEM_MATERIAL,
+        fornecimentoContratante: TEXTO_FORNECIMENTO_CONTRATANTE_COM_MATERIAL,
+      });
+    } else {
+      set({
+        fornecimentoMaterial: modo,
+        fornecimentoContratada: TEXTO_FORNECIMENTO_CONTRATADA_COMPLETO,
+        fornecimentoContratante: TEXTO_FORNECIMENTO_CONTRATANTE_COM_MATERIAL,
+      });
+    }
+  };
 
   const textoMedicoes = `A medição deverá ser feita em conjunto com os FISCAIS DA CONTRATANTE e da CONTRATADA através de BMM (Boletim de Medição Mensal) no qual constará o quantitativo e os valores dos serviços prestados.`;
 
@@ -560,6 +599,53 @@ Material de aplicação (Tubos/ Chapas / Perfil).`;
             </div>
           </div>
 
+          <div className="mb-4 rounded-xl border border-line/70 bg-card/50 p-3.5">
+            <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-navy">
+              Fornecimento
+            </p>
+            <div className="mb-3 flex flex-col gap-2">
+              <label className="text-[11px] font-medium text-muted-ink">
+                Quem fornece o material de aplicação?
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {(
+                  [
+                    ["contratada", "Contratada fornece"],
+                    ["contratante", "Contratante fornece"],
+                    ["parcial", "Parcial (ambos)"],
+                  ] as const
+                ).map(([modo, rotulo]) => (
+                  <button
+                    key={modo}
+                    type="button"
+                    onClick={() => aplicarFornecimento(modo)}
+                    className={`rounded-lg border px-3 py-1.5 text-[12px] font-medium transition-colors ${
+                      proposta.fornecimentoMaterial === modo
+                        ? "border-navy bg-navy text-navy-foreground"
+                        : "border-line bg-card text-ink hover:bg-brand/10"
+                    }`}
+                  >
+                    {rotulo}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <InputField
+                label="Fornecimento da Contratada (editável)"
+                value={proposta.fornecimentoContratada}
+                onChange={(v) => set({ fornecimentoContratada: v })}
+                multiline
+              />
+              <InputField
+                label="Fornecimento da Contratante (editável)"
+                value={proposta.fornecimentoContratante}
+                onChange={(v) => set({ fornecimentoContratante: v })}
+                multiline
+              />
+            </div>
+          </div>
+
           <div className="rounded-xl border border-line/70 bg-card/50 p-3.5">
             <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-navy">
               Assinatura
@@ -658,13 +744,13 @@ Material de aplicação (Tubos/ Chapas / Perfil).`;
               <section>
                 <h3 className="mb-1 font-semibold">4. FORNECIMENTO DA CONTRATADA</h3>
                 <pre className="whitespace-pre-wrap font-sans text-[13px]">
-                  {textoFornecimentoContratada}
+                  {proposta.fornecimentoContratada}
                 </pre>
               </section>
               <section>
                 <h3 className="mb-1 font-semibold">5. FORNECIMENTO DA CONTRATANTE</h3>
                 <pre className="whitespace-pre-wrap font-sans text-[13px]">
-                  {textoFornecimentoContratante}
+                  {proposta.fornecimentoContratante}
                 </pre>
               </section>
               <section>
