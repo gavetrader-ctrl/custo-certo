@@ -28,32 +28,57 @@ export const Route = createFileRoute("/proposta")({
   component: PropostaPage,
 });
 
-type FornecimentoMaterial = "contratada" | "contratante" | "parcial";
+type ResponsavelFornecimento = "contratada" | "contratante" | "ambos";
 
-const TEXTO_FORNECIMENTO_CONTRATADA_COMPLETO = `Fornecimento da alimentação;
-Mão-de-obra especializada direta e indireta;
-Material de aplicação;
-Material de aplicação e consumo;
-Transporte do pessoal;
-Uniformes e equipamentos de proteção individual (EPI's).`;
+type ItemFornecimento = {
+  id: string;
+  descricao: string;
+  responsavel: ResponsavelFornecimento;
+};
 
-const TEXTO_FORNECIMENTO_CONTRATADA_SEM_MATERIAL = `Fornecimento da alimentação;
-Mão-de-obra especializada direta e indireta;
-Material de consumo;
-Transporte do pessoal;
-Uniformes e equipamentos de proteção individual (EPI's).`;
+const novoIdFornecimento = () =>
+  Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 
-const TEXTO_FORNECIMENTO_CONTRATANTE_BASE = `Fiscalização;
-Informações técnicas necessárias à execução do serviço;`;
+const FORNECIMENTOS_PADRAO: ItemFornecimento[] = [
+  { id: "f1", descricao: "Alimentação", responsavel: "contratada" },
+  { id: "f2", descricao: "Mão-de-obra especializada direta e indireta", responsavel: "contratada" },
+  { id: "f3", descricao: "Material de aplicação", responsavel: "contratada" },
+  { id: "f4", descricao: "Material de consumo", responsavel: "contratada" },
+  { id: "f5", descricao: "Transporte do pessoal", responsavel: "contratada" },
+  {
+    id: "f6",
+    descricao: "Uniformes e equipamentos de proteção individual (EPI's)",
+    responsavel: "contratada",
+  },
+  { id: "f7", descricao: "Fiscalização", responsavel: "contratante" },
+  {
+    id: "f8",
+    descricao: "Informações técnicas necessárias à execução do serviço",
+    responsavel: "contratante",
+  },
+];
 
-const TEXTO_FORNECIMENTO_CONTRATANTE_COM_MATERIAL = `Fiscalização;
-Informações técnicas necessárias à execução do serviço;
-Material de aplicação (Tubos/ Chapas / Perfil).`;
+const SUGESTOES_FORNECIMENTO = [
+  "Material de aplicação (Tubos / Chapas / Perfil)",
+  "Andaimes",
+  "Energia elétrica",
+  "Água industrial",
+  "Ferramentas e equipamentos",
+  "Guindaste / Munck",
+  "Transporte de materiais",
+  "Hospedagem",
+  "Área de vivência / Almoxarifado",
+  "Descarte de resíduos",
+];
+
+const RESPONSAVEIS: { valor: ResponsavelFornecimento; rotulo: string }[] = [
+  { valor: "contratada", rotulo: "Contratada" },
+  { valor: "contratante", rotulo: "Contratante" },
+  { valor: "ambos", rotulo: "Ambos" },
+];
 
 type PropostaData = {
-  fornecimentoMaterial: FornecimentoMaterial;
-  fornecimentoContratada: string;
-  fornecimentoContratante: string;
+  itensFornecimento: ItemFornecimento[];
   empresaRazaoSocial: string;
   empresaCnpj: string;
   empresaEndereco: string;
@@ -80,9 +105,7 @@ type PropostaData = {
 };
 
 const propostaInicial: PropostaData = {
-  fornecimentoMaterial: "contratada",
-  fornecimentoContratada: TEXTO_FORNECIMENTO_CONTRATADA_COMPLETO,
-  fornecimentoContratante: TEXTO_FORNECIMENTO_CONTRATANTE_BASE,
+  itensFornecimento: FORNECIMENTOS_PADRAO,
   empresaRazaoSocial: "",
   empresaCnpj: "",
   empresaEndereco: "",
@@ -310,27 +333,30 @@ function PropostaPage() {
     window.print();
   };
 
-  const aplicarFornecimento = (modo: FornecimentoMaterial) => {
-    if (modo === "contratada") {
-      set({
-        fornecimentoMaterial: modo,
-        fornecimentoContratada: TEXTO_FORNECIMENTO_CONTRATADA_COMPLETO,
-        fornecimentoContratante: TEXTO_FORNECIMENTO_CONTRATANTE_BASE,
-      });
-    } else if (modo === "contratante") {
-      set({
-        fornecimentoMaterial: modo,
-        fornecimentoContratada: TEXTO_FORNECIMENTO_CONTRATADA_SEM_MATERIAL,
-        fornecimentoContratante: TEXTO_FORNECIMENTO_CONTRATANTE_COM_MATERIAL,
-      });
-    } else {
-      set({
-        fornecimentoMaterial: modo,
-        fornecimentoContratada: TEXTO_FORNECIMENTO_CONTRATADA_COMPLETO,
-        fornecimentoContratante: TEXTO_FORNECIMENTO_CONTRATANTE_COM_MATERIAL,
-      });
-    }
-  };
+  const itensFornecimento = proposta.itensFornecimento ?? [];
+
+  const adicionarFornecimento = (descricao = "") =>
+    set({
+      itensFornecimento: [
+        ...itensFornecimento,
+        { id: novoIdFornecimento(), descricao, responsavel: "contratada" },
+      ],
+    });
+
+  const atualizarFornecimento = (id: string, patch: Partial<ItemFornecimento>) =>
+    set({
+      itensFornecimento: itensFornecimento.map((i) => (i.id === id ? { ...i, ...patch } : i)),
+    });
+
+  const removerFornecimento = (id: string) =>
+    set({ itensFornecimento: itensFornecimento.filter((i) => i.id !== id) });
+
+  const listaContratada = itensFornecimento.filter(
+    (i) => i.descricao.trim() && i.responsavel !== "contratante",
+  );
+  const listaContratante = itensFornecimento.filter(
+    (i) => i.descricao.trim() && i.responsavel !== "contratada",
+  );
 
   const textoMedicoes = `A medição deverá ser feita em conjunto com os FISCAIS DA CONTRATANTE e da CONTRATADA através de BMM (Boletim de Medição Mensal) no qual constará o quantitativo e os valores dos serviços prestados.`;
 
@@ -603,46 +629,79 @@ function PropostaPage() {
             <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-navy">
               Fornecimento
             </p>
+            <p className="mb-2 text-[11px] text-muted-ink">
+              Liste tudo o que será fornecido e defina de quem é a responsabilidade.
+            </p>
             <div className="mb-3 flex flex-col gap-2">
-              <label className="text-[11px] font-medium text-muted-ink">
-                Quem fornece o material de aplicação?
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {(
-                  [
-                    ["contratada", "Contratada fornece"],
-                    ["contratante", "Contratante fornece"],
-                    ["parcial", "Parcial (ambos)"],
-                  ] as const
-                ).map(([modo, rotulo]) => (
+              {itensFornecimento.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex flex-wrap items-center gap-2 rounded-lg border border-line/70 bg-card px-2 py-1.5"
+                >
+                  <input
+                    value={item.descricao}
+                    onChange={(e) => atualizarFornecimento(item.id, { descricao: e.target.value })}
+                    placeholder="Descrição do fornecimento"
+                    className="min-w-[180px] flex-1 rounded-md border border-line/70 bg-wash px-2 py-1 text-[12px] text-ink outline-none focus:border-navy"
+                  />
+                  <div className="flex gap-1">
+                    {RESPONSAVEIS.map((r) => (
+                      <button
+                        key={r.valor}
+                        type="button"
+                        onClick={() => atualizarFornecimento(item.id, { responsavel: r.valor })}
+                        className={`rounded-md border px-2 py-1 text-[11px] font-medium transition-colors ${
+                          item.responsavel === r.valor
+                            ? "border-navy bg-navy text-navy-foreground"
+                            : "border-line bg-card text-ink hover:bg-brand/10"
+                        }`}
+                      >
+                        {r.rotulo}
+                      </button>
+                    ))}
+                  </div>
                   <button
-                    key={modo}
                     type="button"
-                    onClick={() => aplicarFornecimento(modo)}
-                    className={`rounded-lg border px-3 py-1.5 text-[12px] font-medium transition-colors ${
-                      proposta.fornecimentoMaterial === modo
-                        ? "border-navy bg-navy text-navy-foreground"
-                        : "border-line bg-card text-ink hover:bg-brand/10"
-                    }`}
+                    onClick={() => removerFornecimento(item.id)}
+                    className="rounded-md border border-line px-2 py-1 text-[11px] text-muted-ink hover:bg-brand/10"
                   >
-                    {rotulo}
+                    Remover
                   </button>
-                ))}
-              </div>
+                </div>
+              ))}
+              {itensFornecimento.length === 0 && (
+                <p className="text-[12px] text-muted-ink">Nenhum fornecimento cadastrado.</p>
+              )}
             </div>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <InputField
-                label="Fornecimento da Contratada (editável)"
-                value={proposta.fornecimentoContratada}
-                onChange={(v) => set({ fornecimentoContratada: v })}
-                multiline
-              />
-              <InputField
-                label="Fornecimento da Contratante (editável)"
-                value={proposta.fornecimentoContratante}
-                onChange={(v) => set({ fornecimentoContratante: v })}
-                multiline
-              />
+            <div className="mb-2 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => adicionarFornecimento()}
+                className="rounded-lg border border-navy bg-navy px-3 py-1.5 text-[12px] font-medium text-navy-foreground"
+              >
+                + Adicionar fornecimento
+              </button>
+              <button
+                type="button"
+                onClick={() => set({ itensFornecimento: FORNECIMENTOS_PADRAO })}
+                className="rounded-lg border border-line bg-card px-3 py-1.5 text-[12px] font-medium text-ink hover:bg-brand/10"
+              >
+                Restaurar lista padrão
+              </button>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {SUGESTOES_FORNECIMENTO.filter(
+                (s) => !itensFornecimento.some((i) => i.descricao === s),
+              ).map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => adicionarFornecimento(s)}
+                  className="rounded-full border border-line bg-card px-2.5 py-1 text-[11px] text-muted-ink hover:bg-brand/10 hover:text-ink"
+                >
+                  + {s}
+                </button>
+              ))}
             </div>
           </div>
 
