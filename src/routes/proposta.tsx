@@ -333,27 +333,30 @@ function PropostaPage() {
     window.print();
   };
 
-  const aplicarFornecimento = (modo: FornecimentoMaterial) => {
-    if (modo === "contratada") {
-      set({
-        fornecimentoMaterial: modo,
-        fornecimentoContratada: TEXTO_FORNECIMENTO_CONTRATADA_COMPLETO,
-        fornecimentoContratante: TEXTO_FORNECIMENTO_CONTRATANTE_BASE,
-      });
-    } else if (modo === "contratante") {
-      set({
-        fornecimentoMaterial: modo,
-        fornecimentoContratada: TEXTO_FORNECIMENTO_CONTRATADA_SEM_MATERIAL,
-        fornecimentoContratante: TEXTO_FORNECIMENTO_CONTRATANTE_COM_MATERIAL,
-      });
-    } else {
-      set({
-        fornecimentoMaterial: modo,
-        fornecimentoContratada: TEXTO_FORNECIMENTO_CONTRATADA_COMPLETO,
-        fornecimentoContratante: TEXTO_FORNECIMENTO_CONTRATANTE_COM_MATERIAL,
-      });
-    }
-  };
+  const itensFornecimento = proposta.itensFornecimento ?? [];
+
+  const adicionarFornecimento = (descricao = "") =>
+    set({
+      itensFornecimento: [
+        ...itensFornecimento,
+        { id: novoIdFornecimento(), descricao, responsavel: "contratada" },
+      ],
+    });
+
+  const atualizarFornecimento = (id: string, patch: Partial<ItemFornecimento>) =>
+    set({
+      itensFornecimento: itensFornecimento.map((i) => (i.id === id ? { ...i, ...patch } : i)),
+    });
+
+  const removerFornecimento = (id: string) =>
+    set({ itensFornecimento: itensFornecimento.filter((i) => i.id !== id) });
+
+  const listaContratada = itensFornecimento.filter(
+    (i) => i.descricao.trim() && i.responsavel !== "contratante",
+  );
+  const listaContratante = itensFornecimento.filter(
+    (i) => i.descricao.trim() && i.responsavel !== "contratada",
+  );
 
   const textoMedicoes = `A medição deverá ser feita em conjunto com os FISCAIS DA CONTRATANTE e da CONTRATADA através de BMM (Boletim de Medição Mensal) no qual constará o quantitativo e os valores dos serviços prestados.`;
 
