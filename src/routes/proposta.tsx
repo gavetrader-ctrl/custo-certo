@@ -599,6 +599,53 @@ function PropostaPage() {
             </div>
           </div>
 
+          <div className="mb-4 rounded-xl border border-line/70 bg-card/50 p-3.5">
+            <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-navy">
+              Fornecimento
+            </p>
+            <div className="mb-3 flex flex-col gap-2">
+              <label className="text-[11px] font-medium text-muted-ink">
+                Quem fornece o material de aplicação?
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {(
+                  [
+                    ["contratada", "Contratada fornece"],
+                    ["contratante", "Contratante fornece"],
+                    ["parcial", "Parcial (ambos)"],
+                  ] as const
+                ).map(([modo, rotulo]) => (
+                  <button
+                    key={modo}
+                    type="button"
+                    onClick={() => aplicarFornecimento(modo)}
+                    className={`rounded-lg border px-3 py-1.5 text-[12px] font-medium transition-colors ${
+                      proposta.fornecimentoMaterial === modo
+                        ? "border-navy bg-navy text-navy-foreground"
+                        : "border-line bg-card text-ink hover:bg-brand/10"
+                    }`}
+                  >
+                    {rotulo}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <InputField
+                label="Fornecimento da Contratada (editável)"
+                value={proposta.fornecimentoContratada}
+                onChange={(v) => set({ fornecimentoContratada: v })}
+                multiline
+              />
+              <InputField
+                label="Fornecimento da Contratante (editável)"
+                value={proposta.fornecimentoContratante}
+                onChange={(v) => set({ fornecimentoContratante: v })}
+                multiline
+              />
+            </div>
+          </div>
+
           <div className="rounded-xl border border-line/70 bg-card/50 p-3.5">
             <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-navy">
               Assinatura
