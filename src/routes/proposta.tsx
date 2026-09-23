@@ -697,13 +697,13 @@ function PropostaPage() {
               <section>
                 <h3 className="mb-1 font-semibold">4. FORNECIMENTO DA CONTRATADA</h3>
                 <pre className="whitespace-pre-wrap font-sans text-[13px]">
-                  {textoFornecimentoContratada}
+                  {proposta.fornecimentoContratada}
                 </pre>
               </section>
               <section>
                 <h3 className="mb-1 font-semibold">5. FORNECIMENTO DA CONTRATANTE</h3>
                 <pre className="whitespace-pre-wrap font-sans text-[13px]">
-                  {textoFornecimentoContratante}
+                  {proposta.fornecimentoContratante}
                 </pre>
               </section>
               <section>
